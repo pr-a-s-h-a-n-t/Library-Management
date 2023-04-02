@@ -29,7 +29,7 @@ const { rateLimiting } = require("./middleWares/rateLimiting.js");
 
 const app = express();
 
-const PORT = process.env.PORT || 8000; // after deploying the port which is freely available will be automatically assigned!!
+const PORT = process.env.PORT || 8080; // after deploying the port which is freely available will be automatically assigned!!
 
 const MONGODB_URI = `mongodb+srv://prashantmishramark43:007@cluster0.uke9aoj.mongodb.net/Library-Management`;
 // ejs(view engine) // it will search the files inside the view
@@ -55,8 +55,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static("public"));
-
- 
 
 const store = new mongoDbSession({
   uri: MONGODB_URI,
@@ -326,8 +324,6 @@ app.post("/create-item", isAuth, rateLimiting, async (req, res) => {
     });
   }
 });
-
-
 
 app.listen(PORT, () => {
   console.log(
