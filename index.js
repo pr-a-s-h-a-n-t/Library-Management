@@ -60,6 +60,10 @@ app.get("/dashboard", (req, res) => {
   return res.render("dashboard");
 });
 
+app.get("/profile", (req, res) => {
+  return res.render("profile");
+});
+
 // end point for signup and login page to post the data to the server!!
 //remember we have to use middleware because by default the data is url-encoded format so we need to type cast into the json formate
 //
@@ -160,21 +164,4 @@ app.listen(PORT, () => {
 // using package for CLI Colors--  https://www.npmjs.com/package/cli-color
 
 //To start the server - npm run dev
-
-// console.log("Starting");
-// const express = require("express");
-
-// const clc = require("cli-color");
-
-// const mongoose = require("mongoose");
-
-// mongoose
-//   .connect(
-//     ` `
-//   )
-//   .then(() => {
-//     console.log(clc.green.bold.underline("MongoDb connected"));
-//   })
-//   .catch((err) => {
-//     console.log(clc.red.bold(err));
-//   });
+ 
