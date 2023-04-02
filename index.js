@@ -8,11 +8,18 @@ const mongoose = require("mongoose");
 
 const bcrypt = require("bcrypt");
 
+const validator = require("validator");
+
+const session = require("express-session");
+
+const mongoDbSession = require("connect-mongodb-session")(session);
+
 // File imports--
 const { cleanUpAndValidate } = require("./utils/AuthUtils");
- 
+
 const userSchema = require("./userSchema");
 
+const { isAuth } = require("./middleWares/AuthMiddleWare");
 
 // Variables--
 
@@ -20,7 +27,7 @@ const app = express();
 
 const PORT = process.env.PORT || 8000; // after deploying the port which is freely available will be automatically assigned!!
 
-const MONGO_URI = ` `;
+const MONGODB_URI = `mongodb+srv://prashantmishramark43:007@cluster0.uke9aoj.mongodb.net/Library-Management`;
 // ejs(view engine) // it will search the files inside the view
 // folder  then it  will render You don't have to import anything
 
@@ -30,7 +37,7 @@ app.use(express.static("public"));
 
 // db connection
 mongoose
-  .connect( `mongodb+srv://prashantmishramark43:007@cluster0.uke9aoj.mongodb.net/?retryWrites=true&w=majority`)
+  .connect(MONGODB_URI)
   .then(() => {
     console.log(clc.green.bold.underline("MongoDb connected"));
   })
@@ -42,6 +49,19 @@ mongoose
 //remember we have to use middleware because by default the data is url-encoded format so we need to type cast into the json formate
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const store = new mongoDbSession({
+  uri: MONGODB_URI,
+  collection: "sessions",
+});
+
+app.use(
+  session({
+    secret: "This is Todo app, we dont love coding",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
 
 // Routes(Note- urls are not case  sensitive they will be converted to smaller case)--
 app.get("/", (req, res) => {
@@ -56,9 +76,9 @@ app.get("/login", (req, res) => {
   return res.render("login");
 });
 
-app.get("/dashboard", (req, res) => {
-  return res.render("dashboard");
-});
+// app.get("/dashboard", (req, res) => {
+//   return res.render("dashboard");
+// });
 
 app.get("/profile", (req, res) => {
   return res.render("profile");
@@ -76,8 +96,8 @@ app.post("/signup", async (req, res) => {
   const { name, email, password, username } = req.body;
 
   try {
-   let data =  await cleanUpAndValidate({ name, email, password, username });
-console.log(data, "data after hitting api");
+    await cleanUpAndValidate({ name, email, password, username });
+    // console.log(data, "data after hitting api");
     //check if the user exits
 
     const userExistEmail = await userSchema.findOne({ email });
@@ -137,10 +157,87 @@ console.log(data, "data after hitting api");
 
 //data validations
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
+  //validate the data
   console.log(req.body);
-  return res.send(true);
+  const { loginId, password } = req.body;
+
+  if (!loginId || !password) {
+    return res.send({
+      status: 400,
+      message: "missing credentials",
+    });
+  }
+
+  if (typeof loginId !== "string" || typeof password !== "string") {
+    return res.send({
+      status: 400,
+      message: "Invalid data format",
+    });
+  }
+
+  //identify the loginId and search in database
+
+  try {
+    let userDb;
+    if (validator.isEmail(loginId)) {
+      userDb = await userSchema.findOne({ email: loginId });
+    } else {
+      userDb = await userSchema.findOne({ username: loginId });
+    }
+
+    if (!userDb) {
+      return res.send({
+        status: 400,
+        message: "User not found, Please register first",
+      });
+    }
+
+    //password compare bcrypt.compare
+    const isMatch = await bcrypt.compare(password, userDb.password);
+
+    if (!isMatch) {
+      return res.send({
+        status: 400,
+        message: "Password Does not match",
+      });
+    }
+
+    //Add session base auth sys
+    console.log(req.session);
+    req.session.isAuth = true;
+    req.session.user = {
+      username: userDb.username,
+      email: userDb.email,
+      userId: userDb._id,
+    };
+
+    return res.redirect("/dashboard");
+  } catch (error) {
+    console.log(error);
+    return res.send({
+      status: 500,
+      message: "Database error",
+      error: error,
+    });
+  }
 });
+
+app.get("/dashboard", isAuth, async (req, res) => {
+  return res.render("dashboard");
+});
+
+//logout api's
+app.post("/logout", isAuth, (req, res) => {
+  console.log(req.session);
+  req.session.destroy((err) => {
+    if (err) throw err;
+
+    return res.redirect("/login");
+  });
+});
+
+ 
 
 app.listen(PORT, () => {
   console.log(
@@ -164,4 +261,3 @@ app.listen(PORT, () => {
 // using package for CLI Colors--  https://www.npmjs.com/package/cli-color
 
 //To start the server - npm run dev
- 

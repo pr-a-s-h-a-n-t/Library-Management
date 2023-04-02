@@ -11,8 +11,16 @@
 
 <body>
     <section class="_profile">
+        <div class="_profile_header">
+            <h1>Profile Settings</h1>
+            <form action='/dashboard' method="GET">
+                <button id="back_dashboard_btn" class="_header_btn"> Dashboard</button>
+            </form>
+            <form action='/logout' method="POST">
 
-        <h1>Profile Settings</h1>
+                <button id="logout_btn" class="_header_btn"> <img src="./images/profile.png" alt=""> Logout</button>
+            </form>
+        </div>
         <hr>
         <div class="profile_wrapper">
             <div class="_profile_img">
