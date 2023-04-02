@@ -6,8 +6,13 @@ const { Model } = require("mongoose");
 
 const mongoose = require("mongoose");
 
+const bcrypt = require("bcrypt");
+
 // File imports--
 const { cleanUpAndValidate } = require("./utils/AuthUtils");
+ 
+const userSchema = require("./userSchema");
+
 
 // Variables--
 
@@ -24,14 +29,14 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 
 // db connection
-// mongoose
-//   .connect( ` `)
-//   .then(() => {
-//     console.log(clc.green.bold.underline("MongoDb connected"));
-//   })
-//   .catch((err) => {
-//     console.log(clc.red.bold(err));
-//   });
+mongoose
+  .connect( `mongodb+srv://prashantmishramark43:007@cluster0.uke9aoj.mongodb.net/?retryWrites=true&w=majority`)
+  .then(() => {
+    console.log(clc.green.bold.underline("MongoDb connected"));
+  })
+  .catch((err) => {
+    console.log(clc.red.bold(err));
+  });
 
 // middleware's
 //remember we have to use middleware because by default the data is url-encoded format so we need to type cast into the json formate
@@ -67,8 +72,8 @@ app.post("/signup", async (req, res) => {
   const { name, email, password, username } = req.body;
 
   try {
-    await cleanUpAndValidate({ name, email, password, username });
-
+   let data =  await cleanUpAndValidate({ name, email, password, username });
+console.log(data, "data after hitting api");
     //check if the user exits
 
     const userExistEmail = await userSchema.findOne({ email });
@@ -91,6 +96,7 @@ app.post("/signup", async (req, res) => {
     }
 
     //hash the password using bcypt
+    let saltRound = 10;
     const hashPassword = await bcrypt.hash(password, saltRound);
 
     const user = new userSchema({
@@ -102,7 +108,7 @@ app.post("/signup", async (req, res) => {
 
     try {
       const userDb = await user.save();
-      console.log(userDb);
+      console.log(userDb, "userDb saved");
       return res.send({
         status: 201,
         message: "User register successfully",
