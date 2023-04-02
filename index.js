@@ -21,6 +21,10 @@ const userSchema = require("./userSchema");
 
 const { isAuth } = require("./middleWares/AuthMiddleWare");
 
+const TodoModel = require("./models/libraryModel");
+
+const { rateLimiting } = require("./middleWares/rateLimiting.js");
+
 // Variables--
 
 const app = express();
@@ -49,6 +53,11 @@ mongoose
 //remember we have to use middleware because by default the data is url-encoded format so we need to type cast into the json formate
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(express.static("public"));
+
+ 
+
 const store = new mongoDbSession({
   uri: MONGODB_URI,
   collection: "sessions",
@@ -65,10 +74,10 @@ app.use(
 
 // Routes(Note- urls are not case  sensitive they will be converted to smaller case)--
 app.get("/", (req, res) => {
-  return res.send("This is a LM App");
+  return res.send("Welcome to  Library Management Platform");
 });
 
-app.get("/signup", (req, res) => {
+app.get("/registration’", (req, res) => {
   return res.render("Signup");
 });
 
@@ -80,9 +89,9 @@ app.get("/login", (req, res) => {
 //   return res.render("dashboard");
 // });
 
-app.get("/profile", (req, res) => {
-  return res.render("profile");
-});
+// app.get("/profile", (req, res) => {
+//   return res.render("profile");
+// });
 
 // end point for signup and login page to post the data to the server!!
 //remember we have to use middleware because by default the data is url-encoded format so we need to type cast into the json formate
@@ -91,12 +100,12 @@ app.get("/profile", (req, res) => {
 //MVC
 // Model- functions which interact with database
 // utility functions- functions which does not interact with db
-app.post("/signup", async (req, res) => {
-  console.log(req.body);
-  const { name, email, password, username } = req.body;
+app.post("/registration’", async (req, res) => {
+  console.log(req.body, "-----");
+  const { name, email, password, username, phone } = req.body;
 
   try {
-    await cleanUpAndValidate({ name, email, password, username });
+    await cleanUpAndValidate({ name, email, password, username, phone });
     // console.log(data, "data after hitting api");
     //check if the user exits
 
@@ -128,6 +137,7 @@ app.post("/signup", async (req, res) => {
       email: email,
       password: hashPassword,
       username: username,
+      phone: phone,
     });
 
     try {
@@ -227,6 +237,10 @@ app.get("/dashboard", isAuth, async (req, res) => {
   return res.render("dashboard");
 });
 
+app.get("/profile", isAuth, async (req, res) => {
+  return res.render("profile");
+});
+
 //logout api's
 app.post("/logout", isAuth, (req, res) => {
   console.log(req.session);
@@ -237,7 +251,83 @@ app.post("/logout", isAuth, (req, res) => {
   });
 });
 
- 
+app.post("/logout_from_all_devices", isAuth, async (req, res) => {
+  const username = req.session.user.username;
+
+  //create a session schema
+  const Schema = mongoose.Schema;
+  const sessionSchema = new Schema({ _id: String }, { strict: false });
+  const sessionModel = mongoose.model("session", sessionSchema);
+
+  try {
+    const deletionCount = await sessionModel.deleteMany({
+      "session.user.username": username,
+    });
+    console.log(deletionCount);
+    return res.send({
+      status: 200,
+      message: "Logout from all devices successfully",
+    });
+  } catch (error) {
+    return res.send({
+      status: 500,
+      message: "Logout Failed",
+      error: error,
+    });
+  }
+});
+
+//post books
+app.post("/create-item", isAuth, rateLimiting, async (req, res) => {
+  const todoText = req.body.bookData;
+
+  //data validation
+  if (!todoText) {
+    return res.send({
+      status: 400,
+      message: "Todo is Empty",
+    });
+  }
+
+  if (typeof todoText !== "string") {
+    return res.send({
+      status: 400,
+      message: "Invalid Todo format",
+    });
+  }
+
+  if (todoText.length > 100) {
+    return res.send({
+      status: 400,
+      message: "Todo is too long, should be less than 100 char.",
+    });
+  }
+
+  //intialize todo schema and store it in Db
+  const todo = new TodoModel({
+    todo: todoText,
+    username: req.session.user.username,
+  });
+
+  try {
+    const todoDb = await todo.save();
+
+    // console.log(todo);
+    return res.send({
+      status: 201,
+      message: "Todo created successfully",
+      data: todoDb,
+    });
+  } catch (error) {
+    return res.send({
+      status: 500,
+      message: "Database error",
+      error: error,
+    });
+  }
+});
+
+
 
 app.listen(PORT, () => {
   console.log(

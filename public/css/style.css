@@ -34,7 +34,7 @@ hr {
   /* width: 100%; */
   margin: 0;
 }
-section > nav {
+section > nav > form {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -171,6 +171,14 @@ h4 {
   background: #0036c2;
 }
 
+.price_author_wrapper{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* ----profile page--- */
 ._profile {
   background: #f1f1f1;
@@ -223,10 +231,21 @@ h4 {
 #logout_btn {
   margin: 0;
 }
-#back_dashboard_btn{
+#back_dashboard_btn {
   width: 136px;
   margin: 0;
-   
+}
+#all_devices_logout_btn {
+  width: 100%;
+  margin: auto;
+  padding: 4px 0;
+}
+#all_devices_logout_btn img {
+  width: 45px;
+  height: 45px;
+  margin-right: 8px;
+  /* height: 54px; */
+  border-radius: 100%;
 }
 
 @media screen and (max-width: 368px) {
@@ -257,11 +276,24 @@ h4 {
     margin-right: 4px;
   }
 
-  #back_dashboard_btn{
+  #back_dashboard_btn {
     width: 75px;
     height: 30px;
     font-size: 10px;
     border-radius: 8px;
-     
+  }
+
+  #all_devices_logout_btn {
+    width: 100%;
+    margin: auto;
+    padding: 4px 0;
+    font-size: 12px;
+  }
+  #all_devices_logout_btn img {
+    width: 25px;
+    height: 25px;
+    margin-right: 4px;
+    /* height: 54px; */
+    border-radius: 100%;
   }
 }

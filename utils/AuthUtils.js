@@ -1,8 +1,8 @@
 const validator = require("validator");
 
-const cleanUpAndValidate = ({ name, email, username, password }) => {
+const cleanUpAndValidate = ({ name, email, username, password, phone }) => {
   return new Promise((resolve, reject) => {
-    if (!email || !password || !name || !username) {
+    if (!email || !password || !name || !username || !phone) {
       reject("Missing credentials");
     }
 
@@ -25,6 +25,7 @@ const cleanUpAndValidate = ({ name, email, username, password }) => {
     if (!validator.isEmail(email)) {
       reject("Invalid Email format");
     }
+
     resolve();
   });
 };
