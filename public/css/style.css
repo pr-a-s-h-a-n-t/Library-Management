@@ -101,7 +101,8 @@ h2 {
   margin-top: 50px;
   display: flex;
   flex-wrap: wrap;
-  gap: 58px;
+  row-gap: 58px;
+  justify-content: space-between;
   padding: 58px;
 }
 .book_card {

@@ -15,7 +15,7 @@ const app = express();
 
 const PORT = process.env.PORT || 8000; // after deploying the port which is freely available will be automatically assigned!!
 
-const MONGO_URI = `mongodb+srv://prashantmishraproject:12345@cluster0.v7dmzoi.mongodb.net/?retryWrites=true&w=majority`;
+const MONGO_URI = ` `;
 // ejs(view engine) // it will search the files inside the view
 // folder  then it  will render You don't have to import anything
 
@@ -25,7 +25,7 @@ app.use(express.static("public"));
 
 // db connection
 // mongoose
-//   .connect( `mongodb+srv://prashantmishramark43:007@cluster0.uke9aoj.mongodb.net/lm`)
+//   .connect( ` `)
 //   .then(() => {
 //     console.log(clc.green.bold.underline("MongoDb connected"));
 //   })
@@ -164,7 +164,7 @@ app.listen(PORT, () => {
 
 // mongoose
 //   .connect(
-//     `mongodb+srv://prashantmishramark43:007@cluster0.uke9aoj.mongodb.net/pr`
+//     ` `
 //   )
 //   .then(() => {
 //     console.log(clc.green.bold.underline("MongoDb connected"));
