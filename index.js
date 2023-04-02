@@ -77,7 +77,7 @@ app.get("/", (req, res) => {
   return res.send("Welcome to  Library Management Platform");
 });
 
-app.get("/registration’", (req, res) => {
+app.get("/registration", (req, res) => {
   return res.render("Signup");
 });
 
