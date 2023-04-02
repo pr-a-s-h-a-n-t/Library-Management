@@ -4,6 +4,8 @@ const express = require("express");
 const clc = require("cli-color");
 const { Model } = require("mongoose");
 
+const mongoose = require("mongoose");
+
 // File imports--
 const { cleanUpAndValidate } = require("./utils/AuthUtils");
 
@@ -13,13 +15,25 @@ const app = express();
 
 const PORT = process.env.PORT || 8000; // after deploying the port which is freely available will be automatically assigned!!
 
-
+const MONGO_URI = `mongodb+srv://prashantmishraproject:12345@cluster0.v7dmzoi.mongodb.net/?retryWrites=true&w=majority`;
 // ejs(view engine) // it will search the files inside the view
 // folder  then it  will render You don't have to import anything
 
 app.set("view engine", "ejs");
 
-// middlewares
+app.use(express.static("public"));
+
+// db connection
+// mongoose
+//   .connect( `mongodb+srv://prashantmishramark43:007@cluster0.uke9aoj.mongodb.net/lm`)
+//   .then(() => {
+//     console.log(clc.green.bold.underline("MongoDb connected"));
+//   })
+//   .catch((err) => {
+//     console.log(clc.red.bold(err));
+//   });
+
+// middleware's
 //remember we have to use middleware because by default the data is url-encoded format so we need to type cast into the json formate
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -37,14 +51,18 @@ app.get("/login", (req, res) => {
   return res.render("login");
 });
 
+app.get("/dashboard", (req, res) => {
+  return res.render("dashboard");
+});
+
 // end point for signup and login page to post the data to the server!!
 //remember we have to use middleware because by default the data is url-encoded format so we need to type cast into the json formate
 //
 
-//MVC 
+//MVC
 // Model- functions which interact with database
 // utility functions- functions which does not interact with db
-app.post("/signup", async(req, res) => {
+app.post("/signup", async (req, res) => {
   console.log(req.body);
   const { name, email, password, username } = req.body;
 
@@ -108,8 +126,6 @@ app.post("/signup", async(req, res) => {
 });
 
 //data validations
- 
- 
 
 app.post("/login", (req, res) => {
   console.log(req.body);
@@ -125,7 +141,7 @@ app.listen(PORT, () => {
 
 //EGS
 // step1 create server and connect to mongodb database!.
-// Step2 SignUP( 1.data validation/cleanup, 2.firt check  user exits or not  
+// Step2 SignUP( 1.data validation/cleanup, 2.first check  user exits or not
 // if not then create a user in db,)
 // Step3 Email verification ...
 // Step4 login
@@ -138,3 +154,21 @@ app.listen(PORT, () => {
 // using package for CLI Colors--  https://www.npmjs.com/package/cli-color
 
 //To start the server - npm run dev
+
+// console.log("Starting");
+// const express = require("express");
+
+// const clc = require("cli-color");
+
+// const mongoose = require("mongoose");
+
+// mongoose
+//   .connect(
+//     `mongodb+srv://prashantmishramark43:007@cluster0.uke9aoj.mongodb.net/pr`
+//   )
+//   .then(() => {
+//     console.log(clc.green.bold.underline("MongoDb connected"));
+//   })
+//   .catch((err) => {
+//     console.log(clc.red.bold(err));
+//   });
